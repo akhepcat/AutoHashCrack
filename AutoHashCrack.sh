@@ -26,6 +26,7 @@ then
 	echo "              [options] can be additional rules, or a different attack mode, per hashcat"
 	echo ""
 	echo "		-A 	enabled Automatic rule mode, running against all rules in ${RULEdir}"
+	echo "		-l 	list restorable sessions"
 	echo ""
 	echo "       eg: firefly-descrypt-m1500.hash  or   alu-sha3_256-m5000.hash"
 	echo "              the {cryptinfo} section is optional"
@@ -35,10 +36,18 @@ else
 	shift
 fi
 
-MODE=${FILE##*-}
-MODE="-${MODE%%.*}"
-SESSION=${FILE%%-*}
+FILE=${FILE//.hash/}
+MODE="-${FILE##*-}"
+#MODE="-${MODE%%.*}"
+SESSION=${FILE}
+FILE="${FILE}.hash"
 POTFILE="--potfile-path=${WD}/Cracked-Hashes.pot"
+
+if [ -z "${FILE##*-l*}" ]
+then
+	ls -1 *.restore | sed 's/.restore//g'
+	exit 0
+fi
 
 if [ -n "$*" ]
 then
@@ -81,31 +90,32 @@ then
 		MASKFILE="$(echo \"${OPTIONS}\" | egrep -o -- '[^[:space:]]+\.hcmask')"
 		OPTIONS=${OPTIONS//$MASKFILE/}
 	fi
+
 fi
 
 
 if [ -e "${WD}/${SESSION}.restore" ];
 then
-	RESTORE="--restore"
+	hashcat --advice-disable --force --remove --status --restore --restore-file-path=${WD}/${SESSION}.restore 
 else
 	RESTORE="--session=${SESSION}"
-fi
 
-grep -q ":" ${FILE} && USERS="--username"
+	grep -q ":" ${FILE} && USERS="--username"
 
-if [ 1 -eq ${AUTORULE:-0} ];
-then
-	for RULE in ${RULEdir}/*.rule
-	do
-		hashcat --advice-disable --force --remove --status ${USERS} ${POTFILE} ${RESTORE} --restore-file-path=${WD}/${SESSION}.restore ${MODE} ${ATTACK} ${OPTIONS} ${FILE} ${DICTS} --rules-file=${RULE}
-	done
-else
-	if [ -z "${MASKFILE}" ]
+	if [ 1 -eq ${AUTORULE:-0} ];
 	then
-		MORD=${DICTS}
+		for RULE in ${RULEdir}/*.rule
+		do
+			hashcat --advice-disable --force --remove --status ${USERS} ${POTFILE} ${RESTORE} --restore-file-path=${WD}/${SESSION}.restore ${MODE} ${ATTACK} ${OPTIONS} ${FILE} ${DICTS} --rules-file=${RULE}
+		done
 	else
-		MORD=${MASKFILE}
+		if [ -z "${MASKFILE}" ]
+		then
+			MORD=${DICTS}
+		else
+			MORD=${MASKFILE}
+		fi
+		hashcat --advice-disable --force --remove --status ${USERS} ${POTFILE} ${RESTORE} --restore-file-path=${WD}/${SESSION}.restore ${MODE} ${ATTACK} ${OPTIONS} ${FILE} ${MORD} ${RULES} 
 	fi
-	hashcat --advice-disable --force --remove --status ${USERS} ${POTFILE} ${RESTORE} --restore-file-path=${WD}/${SESSION}.restore ${MODE} ${ATTACK} ${OPTIONS} ${FILE} ${MORD} ${RULES} 
 fi
 
