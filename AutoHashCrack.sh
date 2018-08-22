@@ -10,7 +10,7 @@
 ###############################
 PROG="${0##*/}"
 ##
-WD=${HOME}/Docs/hashcat-pots
+WD=/usr/local/src/AutoHashCrack
 HCdir=/usr/local/src/hashcat-bin
 DICTS=${WD}/Dictionaries/
 RULEdir=${HCdir}/rules
