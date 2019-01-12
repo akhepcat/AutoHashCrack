@@ -17,7 +17,7 @@ RULEdir=${HCdir}/rules
 ATTACK="-a 0"	# default to a straight (dictionary) attack
 AUTORULE=0
 
-if [ -z "${1}" ]
+if [ -z "${1}" -o -z "${1##*-h*}" ]
 then
 	echo "usage:"
 	echo "${PROG} [hashfile] [options]"
