@@ -96,7 +96,7 @@ fi
 
 if [ -e "${WD}/${SESSION}.restore" ];
 then
-	hashcat --advice-disable --force --remove --status --restore --restore-file-path=${WD}/${SESSION}.restore 
+	hashcat --advice-disable --opencl-device-types=1,2,3 --force --status --restore --restore-file-path=${WD}/${SESSION}.restore 
 else
 	RESTORE="--session=${SESSION}"
 
@@ -106,7 +106,7 @@ else
 	then
 		for RULE in ${RULEdir}/*.rule
 		do
-			hashcat --advice-disable --force --remove --status ${USERS} ${POTFILE} ${RESTORE} --restore-file-path=${WD}/${SESSION}.restore ${MODE} ${ATTACK} ${OPTIONS} ${FILE} ${DICTS} --rules-file=${RULE}
+			hashcat --advice-disable --opencl-device-types=1,2,3 --force --status ${USERS} ${POTFILE} ${RESTORE} --restore-file-path=${WD}/${SESSION}.restore ${MODE} ${ATTACK} ${OPTIONS} ${FILE} ${DICTS} --rules-file=${RULE}
 		done
 	else
 		if [ -z "${MASKFILE}" ]
@@ -115,7 +115,7 @@ else
 		else
 			MORD=${MASKFILE}
 		fi
-		hashcat --advice-disable --force --remove --status ${USERS} ${POTFILE} ${RESTORE} --restore-file-path=${WD}/${SESSION}.restore ${MODE} ${ATTACK} ${OPTIONS} ${FILE} ${MORD} ${RULES} 
+		hashcat --advice-disable --opencl-device-types=1,2,3 --force --status ${USERS} ${POTFILE} ${RESTORE} --restore-file-path=${WD}/${SESSION}.restore ${MODE} ${ATTACK} ${OPTIONS} ${FILE} ${MORD} ${RULES} 
 	fi
 fi
 
